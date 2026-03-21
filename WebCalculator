@@ -1,1 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NarrateAI — Professional Voice Story Teller</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;1,300;1,500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090f;
+  --s1:#0f0f1a;
+  --s2:#14141f;
+  --s3:#1a1a28;
+  --border:#ffffff0f;
+  --border2:#ffffff1a;
+  --border3:#ffffff2a;
+  --gold:#d4a843;
+  --gold2:#f0c866;
+  --gold-bg:rgba(212,168,67,0.08);
+  --blue:#5b8ef0;
+  --blue-bg:rgba(91,142,240,0.10);
+  --rose:#e8728a;
+  --rose-bg:rgba(232,114,138,0.10);
+  --text:#f0eee8;
+  --t2:#9896a4;
+  --t3:#5c5a6a;
+  --green:#4cba7a;
+  --red:#e05555;
+  --r:12px;
+  --r2:16px;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;line-height:1.6}
+body{background:
+  radial-gradient(ellipse 60% 50% at 15% -5%,rgba(212,168,67,0.09) 0%,transparent 60%),
+  radial-gradient(ellipse 50% 40% at 85% 105%,rgba(91,142,240,0.07) 0%,transparent 55%),
+  #09090f;
+}
 
+/* CANVAS BG LINES */
+.bg-lines{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;opacity:0.03}
+.bg-lines svg{width:100%;height:100%}
+
+.wrap{position:relative;z-index:1;max-width:820px;margin:0 auto;padding:2.8rem 1.6rem 6rem}
+
+/* ── TOP HEADER ── */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:3rem;padding-bottom:1.8rem;border-bottom:1px solid var(--border2)}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.logo-mark{
+  width:46px;height:46px;border-radius:14px;
+  background:linear-gradient(135deg,#d4a843 0%,#a07020 100%);
+  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+}
+.logo-mark::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent)}
+.logo-wave{width:24px;height:18px}
+.brand{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:600;color:var(--text);letter-spacing:-0.01em}
+.brand em{color:var(--gold);font-style:normal}
+.badge-pro{
+  background:linear-gradient(135deg,#d4a84322,#d4a84311);
+  border:1px solid var(--gold);
+  border-radius:6px;padding:3px 10px;
+  font-size:0.68rem;font-weight:500;
+  color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;
+  margin-left:4px;vertical-align:middle;
+}
+.hdr-right{font-size:0.82rem;color:var(--t3);text-align:right;line-height:1.5}
+.hdr-right a{color:var(--gold);text-decoration:none}
+
+/* ── API KEY BANNER ── */
+.api-banner{
+  background:var(--gold-bg);
+  border:1px solid rgba(212,168,67,0.2);
+  border-radius:var(--r2);
+  padding:1.1rem 1.4rem;
+  margin-bottom:1.8rem;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.api-icon{font-size:1.4rem;flex-shrink:0}
+.api-text{flex:1;min-width:200px}
+.api-text strong{color:var(--gold2);font-weight:500;font-size:0.92rem}
+.api-text p{color:var(--t2);font-size:0.8rem;margin-top:2px}
+.api-text p a{color:var(--gold);text-decoration:none}
+.api-input-wrap{display:flex;gap:8px;align-items:center;width:100%;margin-top:0.7rem}
+.api-key-field{
+  flex:1;background:var(--s1);border:1px solid var(--border2);border-radius:var(--r);
+  padding:0.55rem 0.9rem;color:var(--text);font-family:'Outfit',sans-serif;font-size:0.88rem;
+  outline:none;letter-spacing:0.04em;transition:border-color 0.2s;
+}
+.api-key-field::placeholder{color:var(--t3)}
+.api-key-field:focus{border-color:rgba(212,168,67,0.4)}
+.btn-save-key{
+  background:var(--gold);border:none;border-radius:var(--r);
+  padding:0.55rem 1.1rem;color:#09090f;font-size:0.85rem;font-weight:500;
+  cursor:pointer;white-space:nowrap;font-family:'Outfit',sans-serif;transition:all 0.2s;
+}
+.btn-save-key:hover{background:var(--gold2)}
+.key-saved{color:var(--green);font-size:0.82rem;display:none;align-items:center;gap:5px}
+.key-saved.show{display:flex}
+
+/* ── SECTION ── */
+.sec{margin-bottom:1.5rem}
+.sec-label{
+  font-size:0.7rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--t3);margin-bottom:0.55rem;display:flex;align-items:center;gap:8px;
+}
+.sec-label span{
+  background:var(--s3);border:1px solid var(--border2);
+  border-radius:5px;padding:1px 7px;color:var(--t2);font-size:0.68rem;letter-spacing:0.06em;
+}
+
+/* ── INPUTS ── */
+.field-title{
+  width:100%;background:var(--s1);border:1px solid var(--border2);
+  border-radius:var(--r);padding:0.75rem 1rem;
+  color:var(--text);font-family:'Cormorant Garamond',serif;
+  font-size:1.3rem;font-weight:500;outline:none;
+  transition:border-color 0.2s;
+}
+.field-title::placeholder{color:var(--t3);font-style:italic;font-weight:300}
+.field-title:focus{border-color:rgba(212,168,67,0.35)}
+
+.field-desc{
+  width:100%;background:var(--s1);border:1px solid var(--border);
+  border-radius:var(--r);padding:0.62rem 1rem;
+  color:var(--t2);font-family:'Outfit',sans-serif;font-size:0.88rem;outline:none;
+  transition:border-color 0.2s;
+}
+.field-desc::placeholder{color:var(--t3);font-style:italic}
+.field-desc:focus{border-color:var(--border2)}
+
+/* ── SCRIPT ── */
+.script-wrap{position:relative}
+textarea{
+  width:100%;background:var(--s1);border:1px solid var(--border2);
+  border-radius:var(--r2);padding:1rem 1.1rem 2.8rem;
+  color:var(--text);font-family:'Cormorant Garamond',serif;
+  font-size:1.08rem;line-height:1.9;
+  resize:none;min-height:200px;outline:none;transition:border-color 0.2s;
+}
+textarea::placeholder{color:var(--t3);font-style:italic;font-size:0.95rem}
+textarea:focus{border-color:rgba(212,168,67,0.3)}
+.sc-footer{
+  position:absolute;bottom:10px;left:12px;right:12px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.wc{font-size:0.75rem;color:var(--t3)}
+.wc.over{color:var(--red)}
+.wc.good{color:var(--green)}
+.btn-sample{
+  background:transparent;border:1px dashed var(--border3);
+  border-radius:7px;padding:3px 10px;
+  color:var(--t3);font-size:0.75rem;cursor:pointer;
+  font-family:'Outfit',sans-serif;transition:all 0.2s;
+}
+.btn-sample:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── VOICE CARDS ── */
+.voice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.voice-card{
+  background:var(--s1);border:1.5px solid var(--border);
+  border-radius:var(--r2);padding:1.1rem 1.2rem;
+  cursor:pointer;transition:all 0.22s;position:relative;overflow:hidden;
+}
+.voice-card::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.22s;
+}
+.voice-card.male::before{background:linear-gradient(135deg,var(--blue-bg),transparent)}
+.voice-card.female::before{background:linear-gradient(135deg,var(--rose-bg),transparent)}
+.voice-card:hover{border-color:var(--border3)}
+.voice-card.selected.male{border-color:var(--blue)}
+.voice-card.selected.female{border-color:var(--rose)}
+.voice-card.selected::before{opacity:1}
+
+.vc-top{display:flex;align-items:center;gap:10px;margin-bottom:0.6rem}
+.vc-avatar{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;flex-shrink:0;position:relative;
+}
+.male .vc-avatar{background:rgba(91,142,240,0.15)}
+.female .vc-avatar{background:rgba(232,114,138,0.15)}
+.vc-name{font-weight:500;font-size:0.97rem;color:var(--text)}
+.male.selected .vc-name{color:var(--blue)}
+.female.selected .vc-name{color:var(--rose)}
+.vc-sub{font-size:0.75rem;color:var(--t3);margin-top:1px}
+
+/* Voice sub-select */
+.voice-sub-sel{
+  width:100%;background:var(--s2);border:1px solid var(--border);
+  border-radius:8px;padding:0.4rem 0.6rem;
+  color:var(--t2);font-family:'Outfit',sans-serif;font-size:0.78rem;
+  outline:none;cursor:pointer;transition:border-color 0.2s;margin-top:0.5rem;
+}
+.male .voice-sub-sel:focus{border-color:var(--blue)}
+.female .voice-sub-sel:focus{border-color:var(--rose)}
+.voice-sub-sel option{background:#0f0f1a}
+
+/* Sound wave animation */
+.wave-bars{display:flex;align-items:center;gap:2px;height:18px}
+.wave-bars .b{
+  width:3px;border-radius:2px;
+  animation:wv var(--d,0.8s) var(--dl,0s) ease-in-out infinite alternate;
+}
+.male .wave-bars .b{background:var(--blue)}
+.female .wave-bars .b{background:var(--rose)}
+@keyframes wv{from{height:4px}to{height:16px}}
+.wave-bars.stopped .b{height:4px;animation:none}
+
+/* ── SPEED ── */
+.speed-row{display:flex;gap:8px;flex-wrap:wrap}
+.spd{
+  padding:0.38rem 1rem;border-radius:20px;
+  border:1px solid var(--border2);background:transparent;
+  font-size:0.82rem;color:var(--t2);cursor:pointer;
+  font-family:'Outfit',sans-serif;transition:all 0.18s;
+}
+.spd:hover{border-color:var(--border3);color:var(--text)}
+.spd.active{background:var(--gold-bg);border-color:var(--gold);color:var(--gold)}
+
+/* ── GENERATE / RUN PANEL ── */
+.run-panel{
+  background:var(--s2);border:1px solid var(--border2);
+  border-radius:var(--r2);padding:1.4rem 1.6rem;margin-bottom:1.5rem;
+}
+.run-top{display:flex;align-items:center;gap:1rem;justify-content:space-between;flex-wrap:wrap}
+.run-info h3{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:3px;font-family:'Outfit',sans-serif}
+.run-info p{font-size:0.8rem;color:var(--t3)}
+.run-right{display:flex;align-items:center;gap:12px}
+.timer{
+  font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:300;
+  color:var(--t3);min-width:72px;text-align:center;transition:color 0.3s;
+}
+.timer.live{color:var(--gold2)}
+.timer.done{color:var(--green)}
+
+.btn-run{
+  background:linear-gradient(135deg,#d4a843,#9a6e1a);
+  border:none;border-radius:12px;
+  padding:0.85rem 1.8rem;
+  color:#000;font-family:'Outfit',sans-serif;
+  font-weight:500;font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  transition:all 0.25s;position:relative;overflow:hidden;
+}
+.btn-run::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+}
+.btn-run:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(212,168,67,0.35)}
+.btn-run:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-run .ricon{font-size:1rem}
+
+/* Progress */
+.prog-track{height:3px;background:var(--border2);border-radius:3px;margin-top:1.1rem;overflow:hidden;display:none}
+.prog-track.on{display:block}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;width:0%;transition:width 0.4s}
+
+/* ── STORY PLAYER PANEL ── */
+.player-panel{
+  background:var(--s1);border:1px solid var(--border2);
+  border-radius:20px;overflow:hidden;display:none;
+}
+.player-panel.on{display:block}
+
+.pp-head{
+  background:var(--s2);padding:1.4rem 1.8rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:14px;
+}
+.pp-icon{
+  width:50px;height:50px;border-radius:14px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--s3),var(--s2));
+  border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:1.5rem;
+}
+.pp-meta{flex:1}
+.pp-title{
+  font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:500;
+  color:var(--text);line-height:1.2;margin-bottom:5px;
+}
+.pp-desc{font-size:0.84rem;color:var(--t2);font-style:italic}
+.pp-voice-badge{
+  margin-left:auto;flex-shrink:0;
+  padding:5px 12px;border-radius:20px;font-size:0.75rem;font-weight:500;
+  display:flex;align-items:center;gap:6px;
+}
+.pp-voice-badge.male{background:var(--blue-bg);border:1px solid rgba(91,142,240,0.3);color:var(--blue)}
+.pp-voice-badge.female{background:var(--rose-bg);border:1px solid rgba(232,114,138,0.3);color:var(--rose)}
+.pp-dot{width:7px;height:7px;border-radius:50%}
+.male .pp-dot,.pp-voice-badge.male .pp-dot{background:var(--blue)}
+.female .pp-dot,.pp-voice-badge.female .pp-dot{background:var(--rose)}
+.pp-dot.pulse{animation:dotpulse 1s ease-in-out infinite}
+@keyframes dotpulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* Audio waveform visualizer */
+.waveform{
+  height:60px;padding:0 1.8rem;display:flex;align-items:center;
+  gap:2px;background:var(--s2);border-bottom:1px solid var(--border);
+}
+.wbar{
+  flex:1;max-width:4px;border-radius:2px;
+  background:var(--border2);transition:height 0.1s,background 0.3s;
+  min-height:3px;
+}
+.wbar.active{background:var(--gold)}
+
+/* Scrolling lyrics */
+.lyrics-box{
+  padding:1.8rem 2rem;max-height:240px;overflow-y:auto;
+  scroll-behavior:smooth;
+}
+.lyrics-box::-webkit-scrollbar{width:4px}
+.lyrics-box::-webkit-scrollbar-track{background:transparent}
+.lyrics-box::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px}
+
+.lyric-text{
+  font-family:'Cormorant Garamond',serif;font-size:1.12rem;
+  line-height:2;color:#6a6880;
+}
+.lyric-text .wrd{display:inline;border-radius:3px;transition:color 0.08s,background 0.08s;padding:0 1px}
+.lyric-text .wrd.lit{color:var(--text);background:rgba(212,168,67,0.18)}
+.lyric-text .wrd.done{color:#9896a4}
+
+/* Controls bar */
+.ctrl-bar{
+  background:var(--s2);border-top:1px solid var(--border);
+  padding:1rem 1.8rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.cbtn{
+  background:transparent;border:1px solid var(--border2);
+  border-radius:9px;padding:0.45rem 1rem;
+  color:var(--t2);font-size:0.85rem;cursor:pointer;
+  font-family:'Outfit',sans-serif;transition:all 0.18s;
+  display:flex;align-items:center;gap:6px;
+}
+.cbtn:hover{border-color:var(--border3);color:var(--text)}
+.cbtn.hi{border-color:var(--gold);color:var(--gold);background:var(--gold-bg)}
+.cbtn.danger:hover{border-color:var(--red);color:var(--red)}
+
+/* ── ERR ── */
+.err{
+  background:rgba(224,85,85,0.08);border:1px solid rgba(224,85,85,0.25);
+  border-radius:var(--r);padding:0.8rem 1rem;
+  color:#e07070;font-size:0.85rem;display:none;margin-bottom:1.2rem;
+}
+.err.on{display:block}
+
+/* Loading */
+.ldr{display:none;padding:2rem 0;text-align:center}
+.ldr.on{display:block}
+.ldr-ring{
+  width:36px;height:36px;border-radius:50%;
+  border:2px solid var(--border2);border-top-color:var(--gold);
+  animation:spin 0.9s linear infinite;margin:0 auto 0.8rem;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ldr-text{color:var(--t2);font-size:0.88rem;font-style:italic}
+
+@media(max-width:560px){
+  .wrap{padding:1.5rem 1rem 4rem}
+  .voice-grid{grid-template-columns:1fr}
+  .run-right{width:100%}
+  .timer{font-size:1.6rem}
+  .pp-head{flex-wrap:wrap}
+  .pp-voice-badge{margin-left:0}
+  .lyrics-box{padding:1.2rem 1.2rem}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-lines">
+<svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs><pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0L0 0 0 60" fill="none" stroke="#ffffff" stroke-width="0.5"/></pattern></defs>
+  <rect width="1200" height="800" fill="url(#grid)"/>
+</svg>
+</div>
+
+<div class="wrap">
+
+<!-- ── HEADER ── -->
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="logo-mark">
+      <svg class="logo-wave" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1 9 C3 4, 5 4, 7 9 C9 14, 11 14, 13 9 C15 4, 17 4, 19 9 C21 14, 23 14, 23 9" stroke="#000" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand">Narrate<em>AI</em> <span class="badge-pro">Pro</span></div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    Powered by <a href="https://elevenlabs.io" target="_blank">ElevenLabs</a> voices<br>
+    <span style="color:var(--t3)">Human-quality AI narration</span>
+  </div>
+</div>
+
+<!-- ── API KEY ── -->
+<div class="api-banner">
+  <div class="api-icon">🔑</div>
+  <div class="api-text">
+    <strong>ElevenLabs API Key Required</strong>
+    <p>Free account gives 10,000 chars/month. Get your key at <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a> → Profile → API Key</p>
+  </div>
+  <div style="width:100%">
+    <div class="api-input-wrap">
+      <input class="api-key-field" type="password" id="api-key" placeholder="sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"/>
+      <button class="btn-save-key" onclick="saveKey()">Save Key</button>
+    </div>
+    <div class="key-saved" id="key-saved">✓ Key saved for this session</div>
+  </div>
+</div>
+
+<!-- ── STEP 1: TITLE ── -->
+<div class="sec">
+  <div class="sec-label">Step 1 <span>Story Title</span></div>
+  <input class="field-title" type="text" id="title" placeholder="e.g. The Last Lighthouse Keeper" maxlength="80"/>
+</div>
+
+<!-- ── STEP 2: DESCRIPTION ── -->
+<div class="sec">
+  <div class="sec-label">Step 2 <span>Short Description</span></div>
+  <input class="field-desc" type="text" id="desc" placeholder="e.g. A suspenseful tale of isolation and a signal from 1943..." maxlength="130"/>
+</div>
+
+<!-- ── STEP 3: SCRIPT ── -->
+<div class="sec">
+  <div class="sec-label">Step 3 <span>Story Script</span> <span style="text-transform:none;letter-spacing:0;font-size:0.7rem;border:none;background:none;color:var(--t3);padding:0">120–150 words = 40–60 sec</span></div>
+  <div class="script-wrap">
+    <textarea id="script" placeholder="Write or paste your story script here..." oninput="countWords()"></textarea>
+    <div class="sc-footer">
+      <span class="wc" id="wc">0 words</span>
+      <button class="btn-sample" onclick="loadSample()">✦ Load sample</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── STEP 4: VOICE ── -->
+<div class="sec">
+  <div class="sec-label">Step 4 <span>Professional Voice Artist</span></div>
+  <div class="voice-grid">
+    <div class="voice-card male selected" id="card-m" onclick="selectGender('male')">
+      <div class="vc-top">
+        <div class="vc-avatar">🎙</div>
+        <div>
+          <div class="vc-name">Male Narrator</div>
+          <div class="vc-sub">Deep · Cinematic · Authoritative</div>
+        </div>
+        <div class="wave-bars stopped" id="wave-m" style="margin-left:auto">
+          <div class="b" style="--d:.7s;--dl:0s"></div>
+          <div class="b" style="--d:.5s;--dl:.1s"></div>
+          <div class="b" style="--d:.9s;--dl:.2s"></div>
+          <div class="b" style="--d:.6s;--dl:.05s"></div>
+          <div class="b" style="--d:.8s;--dl:.15s"></div>
+        </div>
+      </div>
+      <select class="voice-sub-sel" id="sel-m" onclick="e=>e.stopPropagation()">
+        <option value="pNInz6obpgDQGcFmaJgB">Adam — Cinematic Deep</option>
+        <option value="VR6AewLTigWG4xSOukaG">Arnold — Powerful &amp; Bold</option>
+        <option value="yoZ06aMxZJJ28mfd3POQ">Sam — Warm Storyteller</option>
+        <option value="TxGEqnHWrfWFTfGW9XjX">Josh — Young &amp; Energetic</option>
+        <option value="ErXwobaYiN019PkySvjV">Antoni — Narrative Expert</option>
+      </select>
+    </div>
+
+    <div class="voice-card female" id="card-f" onclick="selectGender('female')">
+      <div class="vc-top">
+        <div class="vc-avatar">🎤</div>
+        <div>
+          <div class="vc-name">Female Narrator</div>
+          <div class="vc-sub">Warm · Expressive · Captivating</div>
+        </div>
+        <div class="wave-bars stopped" id="wave-f" style="margin-left:auto">
+          <div class="b" style="--d:.6s;--dl:0s"></div>
+          <div class="b" style="--d:.8s;--dl:.12s"></div>
+          <div class="b" style="--d:.5s;--dl:.04s"></div>
+          <div class="b" style="--d:.9s;--dl:.2s"></div>
+          <div class="b" style="--d:.7s;--dl:.08s"></div>
+        </div>
+      </div>
+      <select class="voice-sub-sel" id="sel-f" onclick="e=>e.stopPropagation()">
+        <option value="21m00Tcm4TlvDq8ikWAM">Rachel — Professional Narrator</option>
+        <option value="AZnzlk1XvdvUeBnXmlld">Domi — Strong &amp; Expressive</option>
+        <option value="EXAVITQu4vr4xnSDxMaL">Bella — Soft &amp; Emotional</option>
+        <option value="MF3mGyEYCl7XYWbV9V6O">Elli — Bright &amp; Clear</option>
+        <option value="oWAxZDx7w5VEj9dCyTzz">Grace — Elegant British</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- ── STEP 5: SPEED ── -->
+<div class="sec">
+  <div class="sec-label">Step 5 <span>Narration Stability</span></div>
+  <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+    <div>
+      <div style="font-size:0.76rem;color:var(--t3);margin-bottom:6px">Stability</div>
+      <div class="speed-row" id="stab-row">
+        <button class="spd" data-v="0.3" onclick="setStab(this)">Expressive</button>
+        <button class="spd active" data-v="0.5" onclick="setStab(this)">Balanced</button>
+        <button class="spd" data-v="0.75" onclick="setStab(this)">Stable</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:0.76rem;color:var(--t3);margin-bottom:6px">Clarity</div>
+      <div class="speed-row" id="clar-row">
+        <button class="spd" data-v="0.5" onclick="setClarity(this)">Natural</button>
+        <button class="spd active" data-v="0.75" onclick="setClarity(this)">Clear</button>
+        <button class="spd" data-v="0.9" onclick="setClarity(this)">Enhanced</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ERROR ── -->
+<div class="err" id="err"></div>
+
+<!-- ── RUN PANEL ── -->
+<div class="run-panel">
+  <div class="run-top">
+    <div class="run-info">
+      <h3>Generate Professional Narration</h3>
+      <p>ElevenLabs will render studio-quality audio from your script</p>
+    </div>
+    <div class="run-right">
+      <div class="timer" id="timer">0:00</div>
+      <button class="btn-run" id="run-btn" onclick="runNarration()">
+        <span class="ricon">▶</span> Generate &amp; Play
+      </button>
+    </div>
+  </div>
+  <div class="prog-track" id="prog-t"><div class="prog-fill" id="prog-f"></div></div>
+</div>
+
+<!-- ── LOADING ── -->
+<div class="ldr" id="ldr">
+  <div class="ldr-ring"></div>
+  <div class="ldr-text">Rendering your narration with professional voice AI…</div>
+</div>
+
+<!-- ── PLAYER PANEL ── -->
+<div class="player-panel" id="player">
+  <div class="pp-head">
+    <div class="pp-icon" id="pp-icon">📖</div>
+    <div class="pp-meta">
+      <div class="pp-title" id="pp-title">—</div>
+      <div class="pp-desc" id="pp-desc"></div>
+    </div>
+    <div class="pp-voice-badge male" id="pp-badge">
+      <div class="pp-dot pulse" id="pp-dot"></div>
+      <span id="pp-badge-text">Male · Adam</span>
+    </div>
+  </div>
+
+  <!-- Waveform visualizer -->
+  <div class="waveform" id="waveform"></div>
+
+  <!-- Highlighted text -->
+  <div class="lyrics-box" id="lyrics-box">
+    <div class="lyric-text" id="lyric-text"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="ctrl-bar">
+    <button class="cbtn hi" id="pp-play" onclick="togglePlay()">⏸ Pause</button>
+    <button class="cbtn danger" onclick="stopAudio()">⏹ Stop</button>
+    <button class="cbtn" onclick="replayAudio()">↩ Replay</button>
+    <div style="margin-left:auto;font-size:0.78rem;color:var(--t3)" id="dur-label">—</div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ─────────────────────── STATE ─────────────────────── */
+const SAMPLE_TITLE  = "The Last Lighthouse Keeper";
+const SAMPLE_DESC   = "A suspenseful tale of isolation, mystery, and a signal from 1943.";
+const SAMPLE_SCRIPT = `The storm had been building for three days when Elias heard the radio crackle to life.
+
+He hadn't touched the old transmitter in years. It sat rusting in the corner of the lighthouse's upper room, its dials frozen on a frequency from 1943. But tonight, beneath the howling wind and crashing waves, a voice broke through the static.
+
+"Lighthouse Keeper… do you read?"
+
+Elias pressed his ear against the cold metal. His breath fogged in the chill air. He'd lived alone on this rock for eleven years, long enough to stop believing in coincidence.
+
+He reached for the transmitter with trembling hands.
+
+"This is the lighthouse," he whispered. "Who is calling?"
+
+A long pause. Then the voice returned — clear, impossibly clear for a machine so old.
+
+"My name is Thomas Vane. And I've been waiting for you to answer… for eighty years."`;
+
+let apiKey       = '';
+let gender       = 'male';
+let stability    = 0.5;
+let similarity   = 0.75;
+let audioEl      = null;
+let audioBlob    = null;
+let timerIv      = null;
+let wfIv         = null;
+let wordTimings  = [];
+let wordEls      = [];
+let isPlaying    = false;
+
+/* ─────────────────────── API KEY ─────────────────────── */
+function saveKey(){
+  const v = document.getElementById('api-key').value.trim();
+  if(!v){ showErr('Please enter your ElevenLabs API key.'); return; }
+  apiKey = v;
+  document.getElementById('key-saved').classList.add('show');
+  hideErr();
+}
+
+/* ─────────────────────── GENDER / VOICE ─────────────────────── */
+function selectGender(g){
+  gender = g;
+  document.getElementById('card-m').classList.toggle('selected', g==='male');
+  document.getElementById('card-f').classList.toggle('selected', g==='female');
+}
+function getVoiceId(){
+  const sel = gender==='male'
+    ? document.getElementById('sel-m')
+    : document.getElementById('sel-f');
+  return sel.value;
+}
+function getVoiceName(){
+  const sel = gender==='male'
+    ? document.getElementById('sel-m')
+    : document.getElementById('sel-f');
+  return sel.options[sel.selectedIndex].text.split('—')[0].trim();
+}
+
+/* ─────────────────────── STABILITY / CLARITY ─────────────────────── */
+function setStab(btn){
+  document.querySelectorAll('#stab-row .spd').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); stability=parseFloat(btn.dataset.v);
+}
+function setClarity(btn){
+  document.querySelectorAll('#clar-row .spd').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); similarity=parseFloat(btn.dataset.v);
+}
+
+/* ─────────────────────── WORD COUNT ─────────────────────── */
+function countWords(){
+  const t=document.getElementById('script').value.trim();
+  const n=t?t.split(/\s+/).length:0;
+  const el=document.getElementById('wc');
+  el.textContent=n+' words';
+  el.className='wc'+(n>180?' over':n>=100&&n<=160?' good':'');
+}
+function loadSample(){
+  document.getElementById('title').value  = SAMPLE_TITLE;
+  document.getElementById('desc').value   = SAMPLE_DESC;
+  document.getElementById('script').value = SAMPLE_SCRIPT;
+  countWords();
+}
+
+/* ─────────────────────── WAVEFORM ─────────────────────── */
+function buildWaveform(){
+  const wf = document.getElementById('waveform');
+  wf.innerHTML='';
+  for(let i=0;i<80;i++){
+    const b=document.createElement('div');
+    b.className='wbar';
+    b.style.height = (4+Math.random()*30)+'px';
+    wf.appendChild(b);
+  }
+}
+function animateWaveform(active){
+  clearInterval(wfIv);
+  if(!active){
+    document.querySelectorAll('.wbar').forEach(b=>b.classList.remove('active'));
+    return;
+  }
+  const bars = document.querySelectorAll('.wbar');
+  wfIv = setInterval(()=>{
+    bars.forEach(b=>{
+      if(Math.random()>0.4) b.classList.toggle('active');
+      b.style.height=(4+Math.random()*38)+'px';
+    });
+  },100);
+}
+
+/* ─────────────────────── TIMER ─────────────────────── */
+let timerStart=0, timerOffset=0;
+function startTimer(){
+  timerStart=Date.now();
+  timerIv=setInterval(()=>{
+    const ms=Date.now()-timerStart+timerOffset;
+    const s=Math.floor(ms/1000)%60, m=Math.floor(ms/60000);
+    document.getElementById('timer').textContent=m+':'+(s<10?'0':'')+s;
+    document.getElementById('timer').className='timer live';
+  },300);
+}
+function stopTimer(){ clearInterval(timerIv); }
+function resetTimer(){
+  stopTimer(); timerOffset=0;
+  document.getElementById('timer').textContent='0:00';
+  document.getElementById('timer').className='timer';
+}
+
+/* ─────────────────────── WORD HIGHLIGHTS ─────────────────────── */
+function buildWordSpans(text){
+  const tokens=text.split(/(\s+)/);
+  let html='',idx=0;
+  tokens.forEach(tok=>{
+    if(/\S/.test(tok)){
+      html+=`<span class="wrd" id="wt${idx}">${tok.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span>`;idx++;
+    } else html+=tok;
+  });
+  document.getElementById('lyric-text').innerHTML=html;
+  wordEls=[...document.querySelectorAll('.wrd')];
+}
+function syncWords(audio){
+  const total=wordEls.length;
+  if(!total) return;
+  let lastIdx=-1;
+  const tick=()=>{
+    if(!audio||audio.paused||audio.ended) return;
+    const pct=audio.currentTime/audio.duration;
+    const idx=Math.floor(pct*total);
+    if(idx!==lastIdx&&idx<total){
+      if(lastIdx>=0) wordEls[lastIdx].classList.replace('lit','done')||wordEls[lastIdx].classList.remove('lit');
+      wordEls[idx].classList.add('lit');
+      wordEls[idx].scrollIntoView({behavior:'smooth',block:'nearest'});
+      lastIdx=idx;
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* ─────────────────────── PROGRESS ─────────────────────── */
+function setProg(pct){
+  document.getElementById('prog-f').style.width=Math.min(pct,100)+'%';
+}
+function syncProgress(audio){
+  const update=()=>{
+    if(audio.paused||audio.ended) return;
+    setProg((audio.currentTime/audio.duration)*100);
+    requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
+/* ─────────────────────── ERR ─────────────────────── */
+function showErr(m){ const e=document.getElementById('err'); e.textContent=m; e.classList.add('on'); }
+function hideErr(){ document.getElementById('err').classList.remove('on'); }
+
+/* ─────────────────────── MAIN RUN ─────────────────────── */
+async function runNarration(){
+  const title  = document.getElementById('title').value.trim()||'Untitled Story';
+  const desc   = document.getElementById('desc').value.trim();
+  const script = document.getElementById('script').value.trim();
+  hideErr();
+
+  if(!apiKey){ showErr('Please enter your ElevenLabs API key first.'); return; }
+  if(!script){ showErr('Please write or paste your story script in Step 3.'); return; }
+  if(script.split(/\s+/).length<15){ showErr('Script too short — add at least 20 words.'); return; }
+
+  stopAudio(false);
+
+  // Show loading
+  document.getElementById('ldr').classList.add('on');
+  document.getElementById('run-btn').disabled=true;
+  document.getElementById('prog-t').classList.add('on');
+  setProg(10);
+
+  try {
+    const voiceId = getVoiceId();
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
+      method:'POST',
+      headers:{
+        'xi-api-key': apiKey,
+        'Content-Type':'application/json',
+        'Accept':'audio/mpeg'
+      },
+      body: JSON.stringify({
+        text: script,
+        model_id: 'eleven_monolingual_v1',
+        voice_settings:{
+          stability: stability,
+          similarity_boost: similarity,
+          style: 0.3,
+          use_speaker_boost: true
+        }
+      })
+    });
+
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      throw new Error(err.detail?.message||err.detail||'ElevenLabs API error ('+res.status+'). Check your API key.');
+    }
+
+    setProg(70);
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    audioBlob  = blob;
+
+    document.getElementById('ldr').classList.remove('on');
+    setProg(100);
+
+    // Setup player
+    setupPlayer(title, desc, script, url);
+
+  } catch(e){
+    document.getElementById('ldr').classList.remove('on');
+    document.getElementById('run-btn').disabled=false;
+    showErr(e.message);
+    setProg(0);
+  }
+}
+
+function setupPlayer(title, desc, script, url){
+  // Header
+  document.getElementById('pp-title').textContent = title;
+  document.getElementById('pp-desc').textContent  = desc;
+
+  const badge = document.getElementById('pp-badge');
+  badge.className = 'pp-voice-badge '+gender;
+  document.getElementById('pp-badge-text').textContent =
+    (gender==='male'?'Male':'Female')+' · '+getVoiceName();
+
+  // Waveform
+  buildWaveform();
+
+  // Words
+  buildWordSpans(script);
+
+  // Audio
+  if(audioEl){ audioEl.pause(); audioEl.src=''; }
+  audioEl = new Audio(url);
+  audioEl.onloadedmetadata=()=>{
+    const d=Math.round(audioEl.duration);
+    document.getElementById('dur-label').textContent = Math.floor(d/60)+':'+(d%60<10?'0':'')+Math.floor(d%60)+' total';
+  };
+  audioEl.onplay=()=>{
+    isPlaying=true;
+    document.getElementById('pp-play').textContent='⏸ Pause';
+    document.getElementById('pp-play').className='cbtn hi';
+    document.getElementById('pp-dot').classList.add('pulse');
+    animateWaveform(true);
+    startTimer();
+    syncProgress(audioEl);
+    syncWords(audioEl);
+    // Voice card wave
+    document.getElementById('wave-'+gender[0]).classList.remove('stopped');
+  };
+  audioEl.onpause=()=>{
+    isPlaying=false;
+    document.getElementById('pp-play').textContent='▶ Play';
+    document.getElementById('pp-play').className='cbtn';
+    document.getElementById('pp-dot').classList.remove('pulse');
+    animateWaveform(false);
+    stopTimer(); timerOffset=audioEl.currentTime*1000;
+    document.getElementById('wave-'+gender[0]).classList.add('stopped');
+  };
+  audioEl.onended=()=>{
+    isPlaying=false;
+    document.getElementById('pp-play').textContent='↩ Replay';
+    document.getElementById('pp-play').className='cbtn';
+    document.getElementById('timer').className='timer done';
+    animateWaveform(false);
+    stopTimer();
+    setProg(100);
+    wordEls.forEach(w=>{ w.classList.remove('lit'); w.classList.add('done'); });
+    document.getElementById('run-btn').disabled=false;
+    document.getElementById('wave-m').classList.add('stopped');
+    document.getElementById('wave-f').classList.add('stopped');
+  };
+
+  document.getElementById('player').classList.add('on');
+  document.getElementById('player').scrollIntoView({behavior:'smooth',block:'start'});
+  resetTimer();
+  timerOffset=0;
+  audioEl.play();
+}
+
+function togglePlay(){
+  if(!audioEl) return;
+  if(audioEl.ended){ replayAudio(); return; }
+  if(audioEl.paused) audioEl.play();
+  else audioEl.pause();
+}
+
+function stopAudio(resetUI=true){
+  if(audioEl){ audioEl.pause(); audioEl.currentTime=0; }
+  animateWaveform(false);
+  stopTimer();
+  isPlaying=false;
+  document.getElementById('wave-m').classList.add('stopped');
+  document.getElementById('wave-f').classList.add('stopped');
+  document.getElementById('pp-dot').classList.remove('pulse');
+  document.getElementById('pp-play').textContent='▶ Play';
+  document.getElementById('pp-play').className='cbtn';
+  document.getElementById('run-btn').disabled=false;
+  if(resetUI){ resetTimer(); setProg(0); wordEls.forEach(w=>w.classList.remove('lit','done')); }
+}
+
+function replayAudio(){
+  if(!audioEl) return;
+  wordEls.forEach(w=>w.classList.remove('lit','done'));
+  resetTimer(); timerOffset=0;
+  audioEl.currentTime=0;
+  audioEl.play();
+}
+
+// Init
+countWords();
+</script>
+</body>
+</html>
